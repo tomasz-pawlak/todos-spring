@@ -1,7 +1,11 @@
 spring:
-   h2:
-     console:
-       enabled: true
-       path: '/console'
-   datasource:
-     url: 'jdbc:h2:file:C:/Users/tom/IdeaProjects/todos-spring\todo-db.mv.db'
+  h2:
+    console:
+      enabled: true
+      path: '/console'
+  datasource:
+    url: 'jdbc:h2:file:C:/Users/tom/IdeaProjects/todos-spring/todo-db'
+  jpa:
+    hibernate:
+      ddl-auto: validate
+#      validacja miedzy sql flyway a hibernate co do wersji

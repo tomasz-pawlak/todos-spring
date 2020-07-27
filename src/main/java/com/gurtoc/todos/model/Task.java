@@ -2,10 +2,11 @@ package com.gurtoc.todos.model;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import java.time.LocalDateTime;
 
 @Entity //JPA - ze bedzie tabela z klasy
 @Table(name = "tasks")
-public class Task {
+public class Task extends BaseAuditableEntity{
 
     @Id //dla hibernate
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -14,6 +15,14 @@ public class Task {
     @NotBlank(message = "Task desc must not be null")
     private String description;
     private boolean done;
+//    @Column - dodanie wlasnej nazwy kolumny itp.
+    private LocalDateTime deadline;
+
+    //cammelCase w java, w sql przestawiany na "created_on"
+    //@Transient - nie bedzie pokazywac w kolumnie
+    //ukrywamy przed tym co jest w JSON, ale leci do db
+//    private LocalDateTime createdOn;
+//    private LocalDateTime updatedOn;
 
     public Task() {
     }
@@ -22,7 +31,7 @@ public class Task {
         return id;
     }
 
-    public void setId(int id) {
+    void setId(int id) {
         this.id = id;
     }
 
@@ -41,4 +50,20 @@ public class Task {
     public void setDone(boolean done) {
         this.done = done;
     }
+
+    public LocalDateTime getDeadline() {
+        return deadline;
+    }
+
+    public void setDeadline(LocalDateTime deadline) {
+        this.deadline = deadline;
+    }
+
+    public void updateFrom(final Task source){
+        description = source.description;
+        done = source.done;
+        deadline = source.deadline;
+    }
+
+
 }
