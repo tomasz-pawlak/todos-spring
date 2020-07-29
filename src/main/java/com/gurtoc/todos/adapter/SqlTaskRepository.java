@@ -1,7 +1,9 @@
-package com.gurtoc.todos.model;
+package com.gurtoc.todos.adapter;
 
 //klasa sluzaca do polaczenia api do dzialania na zbiorze
 
+import com.gurtoc.todos.model.Task;
+import com.gurtoc.todos.model.TaskRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RestResource;
@@ -14,6 +16,9 @@ import java.util.List;
 //@RepositoryRestResource
 @Repository
 interface SqlTaskRepository extends TaskRepository, JpaRepository<Task,Integer>  {
+
+    @Override
+    boolean existsByDoneIsFalseAndGroup_Id(Integer groupId);
 
 //    @Override
 //    @RestResource(exported = false)//zabezpieczenie przed kasowaniem

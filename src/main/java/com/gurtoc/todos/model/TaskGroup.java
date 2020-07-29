@@ -3,25 +3,26 @@ package com.gurtoc.todos.model;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity //JPA - ze bedzie tabela z klasy
-@Table(name = "tasks")
-public class Task {
+@Table(name = "task_groups")
+public class TaskGroup {
 
     @Id //dla hibernate
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    //    @Column(name = "desc") //mapowanie nazwy kolumny - mozna prez settera też
-    @NotBlank(message = "Task desc must not be null")
+//    @Column(name = "desc") //mapowanie nazwy kolumny - mozna prez settera też
+    @NotBlank(message = "Task group desc must not be null")
     private String description;
     private boolean done;
-    //    @Column - dodanie wlasnej nazwy kolumny itp.
-    private LocalDateTime deadline;
-    @Embedded
-    private Audit audit = new Audit();
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "group")//jeden taskgroup idzie do wielu taskow, ale nie uzywac List - w hibernate nie zachowuje kolejnosci
+    private Set<Task> taskSet;
     @ManyToOne //wiele taskow moze trafic do jednej grupy
-    @JoinColumn(name = "task_group_id") //po tej kolumnie dołączamy te dane
-    private TaskGroup group ;
+    @JoinColumn(name = "project_id") //po tej kolumnie dołączamy te dane
+    private Project project;
+
 
     //cammelCase w java, w sql przestawiany na "created_on"
     //@Transient - nie bedzie pokazywac w kolumnie
@@ -29,7 +30,7 @@ public class Task {
 //    private LocalDateTime createdOn;
 //    private LocalDateTime updatedOn;
 
-    public Task() {
+    public TaskGroup() {
     }
 
     public int getId() {
@@ -56,28 +57,19 @@ public class Task {
         this.done = done;
     }
 
-    public LocalDateTime getDeadline() {
-        return deadline;
+    public Set<Task> getTaskSet() {
+        return taskSet;
     }
 
-    public void setDeadline(LocalDateTime deadline) {
-        this.deadline = deadline;
+    public void setTaskSet(final Set<Task> taskSet) {
+        this.taskSet = taskSet;
     }
 
-    public TaskGroup getGroup() {
-        return group;
+    public Project getProject() {
+        return project;
     }
 
-    public void setGroup(TaskGroup group) {
-        this.group = group;
+    public void setProject(Project project) {
+        this.project = project;
     }
-
-    public void updateFrom(final Task source) {
-        description = source.description;
-        done = source.done;
-        deadline = source.deadline;
-        group = source.group;
-    }
-
-
 }
