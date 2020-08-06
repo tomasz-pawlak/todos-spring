@@ -21,7 +21,7 @@ public class Task {
     private Audit audit = new Audit();
     @ManyToOne //wiele taskow moze trafic do jednej grupy
     @JoinColumn(name = "task_group_id") //po tej kolumnie dołączamy te dane
-    private TaskGroup group ;
+    private TaskGroup group;
 
     //cammelCase w java, w sql przestawiany na "created_on"
     //@Transient - nie bedzie pokazywac w kolumnie
@@ -29,8 +29,30 @@ public class Task {
 //    private LocalDateTime createdOn;
 //    private LocalDateTime updatedOn;
 
-    public Task() {
+//    public Task() {
+//    }
+
+//    public Task(@NotBlank(message = "Task desc must not be null") String description, LocalDateTime deadline) {
+//        this.description = description;
+//        this.deadline = deadline;
+//    }
+
+    public Task(String description, LocalDateTime deadline) {
+        this(description, deadline, null);
     }
+
+    public Task(String description, LocalDateTime deadline, TaskGroup group){
+        this.description = description;
+        this.deadline = deadline;
+        if(group != null){
+            this.group = group;
+        }
+    }
+
+    public Task() {
+
+    }
+
 
     public int getId() {
         return id;
