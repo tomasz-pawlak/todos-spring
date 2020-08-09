@@ -15,6 +15,7 @@ import java.util.List;
 
 //@RepositoryRestController
 @RestController //zwraca od razu ResponseBody i jest Component
+@RequestMapping("/tasks") //mapowanie zapytania, aby nie było value przy metodach
 public class TaskController {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(TaskController.class);
@@ -24,21 +25,21 @@ public class TaskController {
         this.taskRepository = taskRepository;
     }
 
-    @GetMapping(value = "/tasks", params = {"!sort", "!page", "!size"})
+    @GetMapping(params = {"!sort", "!page", "!size"})
         //pod spodem ma RequestMapping z parametrem get - przechwytuje http.get i zwraca jsona
     ResponseEntity<List<Task>> readAllTasks() {
         LOGGER.warn("Show all tasks");
         return ResponseEntity.ok(taskRepository.findAll());
     }
 
-    @GetMapping("/tasks")
+    @GetMapping
         //pod spodem ma RequestMapping z parametrem get - przechwytuje http.get i zwraca jsona
     ResponseEntity<List<Task>> readAllTasks(Pageable pageable) {
         LOGGER.warn("Show all tasks");
         return ResponseEntity.ok(taskRepository.findAll(pageable).getContent());
     }
 
-    @PutMapping("/tasks/{id}")
+    @PutMapping("/{id}")
     ResponseEntity<?> updateTask(@PathVariable int id, @RequestBody Task toUpdate) {
         if (!taskRepository.existsById(id)) {
             return ResponseEntity.notFound().build();
@@ -51,7 +52,7 @@ public class TaskController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/tasks/{id}")
+    @GetMapping("/{id}")
     ResponseEntity<Task> readTask(@PathVariable int id) {
         return taskRepository.findById(id)
                 .map(task -> ResponseEntity.ok(task))
@@ -59,14 +60,14 @@ public class TaskController {
                 );
     }
 
-    @PostMapping("/tasks")
+    @PostMapping
     ResponseEntity<Task> createTask(@RequestBody @Valid Task saveTask) {
         Task result = taskRepository.save(saveTask);
         return ResponseEntity.created(URI.create("/" + result.getId())).body(result);
     }
 
     @Transactional //dodanie aspektu
-    @PatchMapping("/tasks/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<?> toggleTask(@PathVariable int id) {
         if (!taskRepository.existsById(id)) {
             return ResponseEntity.notFound().build();
@@ -74,6 +75,20 @@ public class TaskController {
         taskRepository.findById(id)
                 .ifPresent(taskRepository -> taskRepository.setDone(!taskRepository.isDone()));
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/search/done")
+    ResponseEntity<List<Task>> readDoneTasks(@RequestParam(defaultValue = "true") boolean state) {//@RequestParam - odwołanie parametru
+        return ResponseEntity.ok(
+                taskRepository.findByDone(state)
+        );
+    }
+
+    @GetMapping("/search/id")
+    ResponseEntity<?> findById(int id) {
+        return ResponseEntity.ok(
+                taskRepository.findById(id)
+        );
     }
 
 }
