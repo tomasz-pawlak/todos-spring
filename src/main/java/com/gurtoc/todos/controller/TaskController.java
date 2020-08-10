@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 //@RepositoryRestController
 @RestController //zwraca od razu ResponseBody i jest Component
@@ -20,16 +21,29 @@ public class TaskController {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(TaskController.class);
     private final TaskRepository taskRepository;
+    private final TaskService taskService;
 
-    TaskController(TaskRepository taskRepository) {
+     TaskController(TaskRepository taskRepository, TaskService taskService) {
         this.taskRepository = taskRepository;
+        this.taskService = taskService;
     }
 
+//    TaskController(TaskRepository taskRepository) {
+//        this.taskRepository = taskRepository;
+//    }
+
+//    @GetMapping(params = {"!sort", "!page", "!size"})
+//        //pod spodem ma RequestMapping z parametrem get - przechwytuje http.get i zwraca jsona
+//    ResponseEntity<List<Task>> readAllTasks() {
+//        LOGGER.warn("Show all tasks");
+//        return ResponseEntity.ok(taskRepository.findAll());
+//    }
+
+    //wersja z ansych
     @GetMapping(params = {"!sort", "!page", "!size"})
-        //pod spodem ma RequestMapping z parametrem get - przechwytuje http.get i zwraca jsona
-    ResponseEntity<List<Task>> readAllTasks() {
+    CompletableFuture<ResponseEntity<List<Task>>> readAllTasks() {
         LOGGER.warn("Show all tasks");
-        return ResponseEntity.ok(taskRepository.findAll());
+        return taskService.findAllTasks().thenApply(ResponseEntity::ok);
     }
 
     @GetMapping
