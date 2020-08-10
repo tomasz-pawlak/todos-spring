@@ -10,3 +10,8 @@ spring:
     hibernate:
       ddl-auto: validate
 #      validacja miedzy sql flyway a hibernate co do wersji
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
