@@ -1,6 +1,7 @@
 package com.gurtoc.todos.logic;
 
 import com.gurtoc.todos.TaskConfigurationProperties;
+import com.gurtoc.todos.model.Project;
 import com.gurtoc.todos.model.TaskGroup;
 import com.gurtoc.todos.model.TaskGroupRepository;
 import com.gurtoc.todos.model.TaskRepository;
@@ -19,7 +20,7 @@ public class TaskGroupService {
     private TaskRepository taskRepository;
 //    private TaskConfigurationProperties configurationProperties;
 
-    public TaskGroupService(TaskGroupRepository repository, TaskRepository taskRepository){
+    public TaskGroupService(TaskGroupRepository repository, TaskRepository taskRepository) {
 //                            TaskConfigurationProperties configurationProperties) {
         this.repository = repository;
         this.taskRepository = taskRepository;
@@ -27,7 +28,11 @@ public class TaskGroupService {
     }
 
     public GroupReadModel createGroup(GroupWriteModel source) {
-        TaskGroup result = repository.save(source.toGroup());
+        return createGroup(source, null);
+    }
+
+    public GroupReadModel createGroup(final GroupWriteModel source, final Project project) {
+        TaskGroup result = repository.save(source.toGroup(project));
         return new GroupReadModel(result);
     }
 
@@ -45,4 +50,6 @@ public class TaskGroupService {
         result.setDone(!result.isDone());
         repository.save(result);
     }
+
+
 }

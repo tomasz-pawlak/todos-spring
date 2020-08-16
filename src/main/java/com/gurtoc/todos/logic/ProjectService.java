@@ -5,11 +5,14 @@ import com.gurtoc.todos.model.*;
 import com.gurtoc.todos.model.projection.GroupReadModel;
 import com.gurtoc.todos.model.projection.GroupTaskWriteModel;
 import com.gurtoc.todos.model.projection.GroupWriteModel;
+import com.gurtoc.todos.model.projection.ProjectWriteModel;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Service
 public class ProjectService {
     private ProjectRepository projectRepository;
     private TaskGroupRepository taskGroupRepository;
@@ -27,28 +30,9 @@ public class ProjectService {
         return projectRepository.findAll();
     }
 
-    public Project save(Project toSave) {
-        return projectRepository.save(toSave);
+    public Project save(ProjectWriteModel toSave) {
+        return projectRepository.save(toSave.toProject());
     }
-
-//    public GroupReadModel createGroup(LocalDateTime deadline, int projectID) {
-//        if (!configurationProperties.getTemplate().isAllowMultipleTasks() && taskGroupRepository.existsByDoneIsFalseAndProject_Id(projectID)) {
-//            throw new IllegalStateException("Only one grp from project is allowed");
-//        }
-//        TaskGroup taskGroup = projectRepository.findById(projectID)
-//                .map(project -> {
-//                    var result = new TaskGroup();
-//                    result.setDescription(project.getDescription());
-//                    result.setTaskSet(project.getSteps().stream()
-//                            .map(projectStep ->
-//                                    new Task(projectStep.getDescription(), deadline.plusDays(projectStep.getDaysToDeadline())))
-//                            .collect(Collectors.toSet())
-//                    );
-//                    result.setProject(project);
-//                    return taskGroupRepository.save(result);
-//                }).orElseThrow(()->new IllegalArgumentException("Project with given id not found") );
-//        return new GroupReadModel(taskGroup);
-//    }
 
     public GroupReadModel createGroup(LocalDateTime deadline, int projectID) {
         if (!configurationProperties.getTemplate().isAllowMultipleTasks() && taskGroupRepository.existsByDoneIsFalseAndProject_Id(projectID)) {
@@ -60,15 +44,15 @@ public class ProjectService {
                     targetGroup.setDescription(project.getDescription());
                     targetGroup.setTasks(
                             project.getSteps().stream()
-                                .map(projectStep -> {
-                                    var task = new GroupTaskWriteModel();
-                                    task.setDescription(projectStep.getDescription());
-                                    task.setDeadline(deadline.plusDays(projectStep.getDaysToDeadline()));
-                                    return task;
-                                }
-                                ).collect(Collectors.toSet())
+                                    .map(projectStep -> {
+                                                var task = new GroupTaskWriteModel();
+                                                task.setDescription(projectStep.getDescription());
+                                                task.setDeadline(deadline.plusDays(projectStep.getDaysToDeadline()));
+                                                return task;
+                                            }
+                                    ).collect(Collectors.toList())
                     );
-                    return service.createGroup(targetGroup);
-                }).orElseThrow(()->new IllegalArgumentException("Project with given id not found"));
+                    return service.createGroup(targetGroup, project);
+                }).orElseThrow(() -> new IllegalArgumentException("Project with given id not found"));
     }
 }
