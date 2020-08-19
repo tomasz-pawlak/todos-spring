@@ -4,6 +4,7 @@ import com.gurtoc.todos.model.Task;
 import com.gurtoc.todos.model.TaskRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,13 +23,15 @@ public class TaskController {
     public static final Logger LOGGER = LoggerFactory.getLogger(TaskController.class);
     private final TaskRepository taskRepository;
     private final TaskService taskService;
+    private final ApplicationEventPublisher publisher;
 
-    TaskController(TaskRepository taskRepository, TaskService taskService) {
+    public TaskController(TaskRepository taskRepository, TaskService taskService, ApplicationEventPublisher publisher) {
         this.taskRepository = taskRepository;
         this.taskService = taskService;
+        this.publisher = publisher;
     }
 
-//    TaskController(TaskRepository taskRepository) {
+    //    TaskController(TaskRepository taskRepository) {
 //        this.taskRepository = taskRepository;
 //    }
 
@@ -87,7 +90,8 @@ public class TaskController {
             return ResponseEntity.notFound().build();
         }
         taskRepository.findById(id)
-                .ifPresent(taskRepository -> taskRepository.setDone(!taskRepository.isDone()));
+                .map(Task::toggle)
+                .ifPresent(publisher::publishEvent);
         return ResponseEntity.noContent().build();
     }
 

@@ -1,5 +1,7 @@
 package com.gurtoc.todos.model;
 
+import com.gurtoc.todos.model.event.TaskEvent;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
@@ -41,10 +43,10 @@ public class Task {
         this(description, deadline, null);
     }
 
-    public Task(String description, LocalDateTime deadline, TaskGroup group){
+    public Task(String description, LocalDateTime deadline, TaskGroup group) {
         this.description = description;
         this.deadline = deadline;
-        if(group != null){
+        if (group != null) {
             this.group = group;
         }
     }
@@ -74,8 +76,12 @@ public class Task {
         return done;
     }
 
-    public void setDone(boolean done) {
-        this.done = done;
+    //    public void setDone(boolean done) {
+//        this.done = done;
+//    }
+    public TaskEvent toggle() {
+        this.done = !this.done;
+        return TaskEvent.changed(this);
     }
 
     public LocalDateTime getDeadline() {
